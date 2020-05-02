@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_navigation"
+    app:startDestination="@id/nav_first">
+
+    <fragment
+        android:id="@+id/nav_first"
+        android:name="com.drdlee.daggerexample.first.FirstFragment"
+        android:label="FirstFragment" />
+    <fragment
+        android:id="@+id/nav_second"
+        android:name="com.drdlee.daggerexample.first.SecondFragment"
+        android:label="SecondFragment" />
+    <fragment
+        android:id="@+id/nav_third"
+        android:name="com.drdlee.daggerexample.third.ThirdFragment"
+        android:label="ThirdFragment" />
+</navigation>
