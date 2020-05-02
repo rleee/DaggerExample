@@ -22,8 +22,4 @@ class FirstFragment : Fragment() {
 
         return binding.root
     }
-
-    companion object {
-        fun create(): FirstFragment = FirstFragment()
-    }
 }
