@@ -78,7 +78,8 @@ class ThirdPartyLibraryModule {
 ### Second Session
 We will use two kind of injection here:
 1. Property injection <br>
-we will inject ViewModel **factory** to a property
+   - we will inject ViewModel **factory** to a property
+   - use `@Binds` instead `@Provides` to provide factory, Binds will directly create the object while with Provides we have to manually configure the object
 
 > factory `<--` [Fragment](#fragment) `<--` [SecondFactoryComponent](#component) `<--` [SecondFactoryModule](#module) `<--` [SecondViewModelProvider](#provider-factory)
 
@@ -121,6 +122,15 @@ interface SecondFactoryComponent {
 
 ##### Module
 ```kotlin
+/**
+ * Two kind of Module
+ *
+ * - Class and Provides (first example)
+ *   --> why? because if we need to configure the 3rdParty object
+ *
+ * - Abstract Class and Binds (this example)
+ *   --> directly create the 3rdParty object without we manually return it
+ */
 @Module
 abstract class SecondFactoryModule {
     @Binds
