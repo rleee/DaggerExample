@@ -1,17 +1,30 @@
 # DaggerExample
-Dagger test
+Exercise of using Dagger2 from [link](https://youtu.be/ZOFzKCtuDPw) <br>
 
-### First Session (Basic usage of dagger)
+We'll do it by steps:
+1. [First session](#first-session)
+   - Property injection
+   - Modules + Provides
+   - Component basic
+
+2. [Second session](#second-session)
+   - Property injection
+   - Constructor injection
+   - Modules + Binds
+   - Component basic
+   
 ---
+
+### First Session
 Say we have a fragment need Repository and we want to provide it using Dagger, <br>
 the Repository needed 3rd party library and we also will use Dagger to provide it, and it'll be like: <br>
 
 > Property injection <br>
-Repo variable <-- Fragment <-- RepoComponent <-- ThirdPartyModule <-- ThirdPartyLibrary
+Repo variable `<--` [Fragment](#fragment) `<--` [RepoComponent](#component) `<--` [ThirdPartyModule](#module) `<--` ThirdPartyLibrary
 
 <br>
 
-**Fragment**
+##### Fragment
 ```kotlin
 class FirstFragment : Fragment() {
     ...
@@ -39,7 +52,7 @@ class Repo
 }
 ```
 
-**Component** <br>
+##### Component
 Creating RepoComponent to inject to Repo property that need ThirdPartyLibrary module
 ```kotlin
 @Component(modules = [ThirdPartyLibraryModule::class]) // <-- Providing ThirdPartyLibrary
@@ -48,7 +61,7 @@ interface RepoComponent {
 }
 ```
 
-**Module** <br>
+##### Module
 Creating and providing ThirdPartyLibrary instance
 ```kotlin
 @Module
@@ -59,4 +72,109 @@ class ThirdPartyLibraryModule {
     }
 }
 ```
+
+---
+
+### Second Session
+We will use two kind of injection here:
+1. Property injection <br>
+we will inject ViewModel **factory** to a property
+
+> factory `<--` [Fragment](#fragment) `<--` [SecondFactoryComponent](#component) `<--` [SecondFactoryModule](#module) `<--` [SecondViewModelProvider](#provider-factory)
+
+2. Constructor injection <br>
+we use **Repository** in **ViewModel**'s constructor, Dagger will automatically inject repository to viewmodel when we put `@Inject` annotation to **receiver** (ViewModel) and **provider** (Repository)
+
+> [ViewModel](#viewmodel) `<--` [Repository](#repository)
+
+<br>
+
+##### Fragment
+```kotlin
+class SecondFragment : Fragment() {
+    ...
+    @Inject // <-- Property injection
+    lateinit var factory: SecondViewModelProvider
+    private lateinit var viewModel: SecondViewModel
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        DaggerSecondFactoryComponent.create().injectTo(this) // <-- Injecting to this Fragment
+
+        // factory = SecondViewModelProvider(repository) <-- without Dagger, this is how we it to provide Repository fo ViewModel 
+        viewModel = ViewModelProvider(this, factory).get(SecondViewModel::class.java)
+        ...
+}
+```
+
+##### Component
+```kotlin
+@Component(modules = [SecondFactoryModule::class])
+interface SecondFactoryComponent {
+    fun injectTo(fragment: SecondFragment)
+}
+```
+
+##### Module
+```kotlin
+@Module
+abstract class SecondFactoryModule {
+    @Binds
+    abstract fun bindFactory(factory: SecondViewModelProvider): ViewModelProvider.Factory
+}
+```
+
+##### Provider Factory
+```kotlin
+class SecondViewModelProvider
+@Inject constructor(
+    private val viewModelProvider: Provider<SecondViewModel> // <-- without Dagger, when we wants to -
+                                                             // provide Repository to viewModel through constructor:
+    // private val repository: Repository <-- code
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return viewModelProvider.get() as T
+    }
+
+    // without Dagger, the overwrite will be written like:
+    //
+    // override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    // if (modelClass.isAssignableFrom(SecondViewModel::class.java)) {  <-- is able to assign from SecondViewModel
+    //         return SecondViewModel(repository) as T                  <-- pass repository to ViewModel
+    //     }
+    //     throw IllegalArgumentException("Unknown ViewModel class")
+    // }
+}
+```
+
+##### ViewModel
+```kotlin
+class SecondViewModel
+@Inject constructor( // <-- Constructor injection, will inject Repository here
+    private val repository: Repository
+) : ViewModel() {
+
+    val username = repository.fetchUsername()
+}
+```
+
+##### Repository
+```kotlin
+class Repository
+@Inject constructor() { // <-- Constructor injection, will mark this as object to provide to other constructor
+
+    private val username = MutableLiveData<String>("Value from Repository")
+    fun fetchUsername() = username.value
+}
+```
+
+
+
+
+
 
