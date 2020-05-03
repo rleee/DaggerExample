@@ -5,14 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.drdlee.daggerexample.databinding.FragmentFirstBinding
 import com.drdlee.daggerexample.databinding.FragmentSecondBinding
 import com.drdlee.daggerexample.second.di.DaggerSecondFactoryComponent
 import com.drdlee.daggerexample.second.ui.SecondViewModel
 import com.drdlee.daggerexample.second.ui.SecondViewModelProvider
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 class SecondFragment : Fragment() {
@@ -33,6 +30,7 @@ class SecondFragment : Fragment() {
         binding = FragmentSecondBinding.inflate(inflater)
         binding.lifecycleOwner = this
 
+        // factory = SecondViewModelProvider(repository) <-- without Dagger, when we wants to provide Repository to viewModel will be like this
         viewModel = ViewModelProvider(this, factory).get(SecondViewModel::class.java)
 
         return binding.root
