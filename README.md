@@ -13,7 +13,8 @@ We'll do it by steps:
    - Modules + Binds
    - Component basic
   
-3. [Third session](#third-session)
+3. [Third session](#third-session) <br>
+super simple dagger multi binding [example](https://github.com/rleee/DaggerSuperSimpleMultibinding/tree/master/app/src/main/java/com/drdlee/daggermultibinding)
    - Property injection
    - Constructor injection
    - Modules + Binds + IntoMap/multibinding
