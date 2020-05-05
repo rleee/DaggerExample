@@ -79,7 +79,9 @@ class ThirdPartyLibraryModule {
 We will use two kind of injection here:
 1. Property injection <br>
    - we will inject ViewModel **factory** to a property
-   - use `@Binds` instead `@Provides` to provide factory, Binds will directly create the object while with Provides we have to manually configure the object
+   - use `@Binds` instead `@Provides` to provide factory: [stackoverflow explanation](https://stackoverflow.com/a/52618571/12751279)
+     - Binds will create object that need implementation of other class (like SecondViewModelProvider extends ViewModelProvider.Factory) 
+     - Binds will also need @Inject annotation at provider class (SecondViewModelProvider)
 
 > factory `<--` [Fragment](#fragment) `<--` [SecondFactoryComponent](#component) `<--` [SecondFactoryModule](#module) `<--` [SecondViewModelProvider](#provider-factory)
 
@@ -129,7 +131,7 @@ interface SecondFactoryComponent {
  *   --> why? because if we need to configure the 3rdParty object
  *
  * - Abstract Class and Binds (this example)
- *   --> directly create the 3rdParty object without we manually return it
+ *   --> create the 3rdParty object with implementation needed (SecondViewModelProvider implements ViewModelProvider.Factory)
  */
 @Module
 abstract class SecondFactoryModule {
