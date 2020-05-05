@@ -32,7 +32,7 @@ interface SecondFactoryComponent {
  *   --> why? because if we need to configure the 3rdParty object
  *
  * - Abstract Class and Binds (this example)
- *   --> directly create the 3rdParty object without we manually return it
+ *   --> create the 3rdParty object with implementation needed (SecondViewModelProvider implements ViewModelProvider.Factory)
  */
 @Module
 abstract class SecondFactoryModule {

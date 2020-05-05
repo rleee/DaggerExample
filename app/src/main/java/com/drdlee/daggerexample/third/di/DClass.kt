@@ -26,8 +26,8 @@ internal abstract class ViewModelModule {
     abstract fun bindThirdFactory(thirdFactory: ThirdViewModelProvider): ViewModelProvider.Factory
 
     @Binds
-    @IntoMap
-    @ViewModelKey(ThirdFragmentViewModel::class)
+    @IntoMap // <-- Making it into a Map
+    @ViewModelKey(ThirdFragmentViewModel::class) // <-- The MapKey and the value will be the instance of @Binds
     abstract fun bindThirdViewModel(Third: ThirdFragmentViewModel): ViewModel
 
     @Binds
@@ -36,6 +36,9 @@ internal abstract class ViewModelModule {
     abstract fun bindThirdDetailsViewModule(ThirdDetails: ThirdFragmentDetailsViewModel): ViewModel
 }
 
+/**
+ * Making the MapKey to map the ViewModels
+ */
 @MustBeDocumented
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

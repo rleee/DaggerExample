@@ -9,6 +9,9 @@ import javax.inject.Provider
 
 class ThirdViewModelProvider
 @Inject constructor(
+    // Injecting Dagger Map to here Map<K,V>
+    // K = MapKey Class<out ViewModel>, 'out' meaning sub-type of ViewModel or class that extends ViewModel
+    // V = MapValue, it will be 'provided' by dagger
     private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 
