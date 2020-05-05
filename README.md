@@ -12,6 +12,13 @@ We'll do it by steps:
    - Constructor injection
    - Modules + Binds
    - Component basic
+  
+3. [Third session](#third-session)
+   - Property injection
+   - Constructor injection
+   - Modules + Binds + IntoMap/multibinding
+   - MapKey
+   - Component basic
    
 ---
 
@@ -185,8 +192,74 @@ class Repository
 }
 ```
 
+---
+### Third Session
+will be using MultiBinding to bind ViewModel, the [ThirdViewModelProvider](#viewmodelprovider-factory-with-multibinding) will need to be Injected by Map val from constructor which is the map that we annotate in [ViewModel Module](#module-multibinding)
 
+> ThirdViewModelProvider < Module < MapKey
 
+##### Multibinding key
+```kotlin
+/**
+ * Making the MapKey to map the ViewModels
+ */
+@MustBeDocumented
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@MapKey
+internal annotation class ViewModelKey(val value: KClass<out ViewModel>)
+```
 
+##### Module multibinding
+```kotlin
+@Module
+internal abstract class ViewModelModule {
+    @Binds
+    abstract fun bindThirdFactory(thirdFactory: ThirdViewModelProvider): ViewModelProvider.Factory
 
+    @Binds
+    @IntoMap // <-- Making it into a Map
+    @ViewModelKey(ThirdFragmentViewModel::class) // <-- The MapKey and the value will be the instance of @Binds
+    abstract fun bindThirdViewModel(Third: ThirdFragmentViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ThirdFragmentDetailsViewModel::class)
+    abstract fun bindThirdDetailsViewModule(ThirdDetails: ThirdFragmentDetailsViewModel): ViewModel
+}
+```
+
+##### ViewModelProvider factory with multibinding
+note: better explanation of `out` keyword in kotlin: [out/in](https://stackoverflow.com/a/55680445/12751279)
+
+```kotlin
+class ThirdViewModelProvider
+@Inject constructor(
+    // Injecting Dagger Map to here Map<K,V>
+    // K = MapKey Class<out ViewModel>, 'out' meaning sub-type of ViewModel or class that extends ViewModel
+    // V = MapValue, it will be 'provided' by dagger
+    private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        var creator: Provider<ViewModel>? = creators[modelClass]
+
+        if (creator == null) {
+            for ((key, value) in creators) {
+                if (modelClass.isAssignableFrom(key)) {
+                    creator = value
+                    break
+                }
+            }
+        }
+
+        if (creator == null) throw IllegalAccessException("Unknown model class")
+        try {
+            return creator.get() as T
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
+}
+```
 
